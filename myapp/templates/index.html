@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Fruits{% endblock %}
+{% block content %}
+<h2 class="mb-4">Available Fruits</h2>
+<div class="row">
+    {% for fruit in fruits %}
+    <div class="col-md-4">
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ fruit.name }}</h5>
+                <p class="card-text">{{ fruit.description or "No description" }}</p>
+                <p class="fw-bold">FCFA{{ "%.2f"|format(fruit.price) }}</p>
+                <form method="POST" action="{{ url_for('main.add_to_cart', fruit_id=fruit.id) }}">
+                    <div class="input-group">
+                        <input type="number" name="quantity" value="1" min="1" class="form-control">
+                        <button type="submit" class="btn btn-success">Add to Cart</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>No fruits available. Add some!</p>
+    {% endfor %}
+</div>
+{% endblock %}
