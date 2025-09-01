@@ -18,8 +18,8 @@
         <tr>
             <td>{{ item.fruit.name }}</td>
             <td>{{ item.quantity }}</td>
-            <td>${{ "%.2f"|format(item.fruit.price) }}</td>
-            <td>${{ "%.2f"|format(item.quantity * item.fruit.price) }}</td>
+            <td>fcfa{{ "%.2f"|format(item.fruit.price) }}</td>
+            <td>fcfa{{ "%.2f"|format(item.quantity * item.fruit.price) }}</td>
         </tr>
         {% endfor %}
     </tbody>
