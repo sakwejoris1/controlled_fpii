@@ -1,36 +1,48 @@
 {% extends "base.html" %}
+
 {% block title %}Your Cart{% endblock %}
+
 {% block content %}
-<h2>Your Shopping Cart</h2>
+<div class="container mt-4">
+    <h2>Your Shopping Cart</h2>
 
-{% if cart_items %}
-<table class="table table-bordered mt-3">
-    <thead class="table-dark">
-        <tr>
-            <th>Fruit</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in cart_items %}
-        <tr>
-            <td>{{ item.fruit.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>fcfa{{ "%.2f"|format(item.fruit.price) }}</td>
-            <td>fcfa{{ "%.2f"|format(item.quantity * item.fruit.price) }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    {% if cart_items %}
+    <table class="table table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Fruit</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.fruit.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>fcfa{{ item.fruit.price }}</td>
+                <td>fcfa{{ item.quantity * item.fruit.price }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('main.remove_from_cart', item_id=item.id) }}">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-<h4 class="mt-3">Total: FCFA{{ "%.2f"|format(total) }}</h4>
+    <h4 class="mt-3">Grand Total: fcfa{{ total }}</h4>
 
-<form method="POST" action="{{ url_for('main.place_order') }}">
-    <button type="submit" class="btn btn-success">Place Order</button>
-</form>
-{% else %}
-<p class="mt-3">Your cart is empty.</p>
-{% endif %}
+    <!-- ✅ Checkout should be POST -->
+    <form method="post" action="{{ url_for('main.place_order') }}">
+        <button type="submit" class="btn btn-success mt-3">Proceed to Checkout</button>
+    </form>
+
+    {% else %}
+    <p>Your cart is empty.</p>
+    {% endif %}
+</div>
 {% endblock %}

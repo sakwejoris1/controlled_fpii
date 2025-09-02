@@ -7,7 +7,6 @@ main = Blueprint("main", __name__)
 def get_db():
     return SessionLocal()
 
-# ------------------- API ROUTES -------------------
 
 @main.route("/fruit", methods=["GET"])
 def get_fruits():
@@ -22,11 +21,11 @@ def add_cart_item():
     fruit_id = data.get("fruit_id")
     quantity = data.get("quantity", 1)
 
-    fruit = db.query(Fruit).get(fruit_id)
+    fruit = db.get(Fruit, fruit_id)  
     if not fruit:
         return jsonify({"error": "Fruit not found"}), 404
 
-    cart_item = db.query(CartItem).filter(CartItem.fruit_id==fruit_id).first()
+    cart_item = db.query(CartItem).filter(CartItem.fruit_id == fruit_id).first()
     if cart_item:
         cart_item.quantity += quantity
     else:
@@ -57,7 +56,7 @@ def view_cart():
 def update_cart_item(item_id):
     db = get_db()
     data = request.get_json()
-    item = db.query(CartItem).get(item_id)
+    item = db.get(CartItem, item_id)
     if not item:
         return jsonify({"error": "Item not found"}), 404
     item.quantity = data.get("quantity", item.quantity)
@@ -67,7 +66,7 @@ def update_cart_item(item_id):
 @main.route("/cart/<int:item_id>", methods=["DELETE"])
 def delete_cart_item(item_id):
     db = get_db()
-    item = db.query(CartItem).get(item_id)
+    item = db.get(CartItem, item_id)
     if not item:
         return jsonify({"error": "Item not found"}), 404
     db.delete(item)
@@ -97,7 +96,11 @@ def place_order():
         db.delete(cart_item)
 
     db.commit()
-    return jsonify({"message": "Order placed successfully", "order_id": order.id, "status": order.status}), 201
+    return jsonify({
+        "message": "Order placed successfully",
+        "order_id": order.id,
+        "status": order.status
+    }), 201
 
 @main.route("/orders", methods=["GET"])
 def get_orders():
@@ -119,7 +122,6 @@ def get_orders():
         })
     return jsonify(output)
 
-# ------------------- FRONTEND ROUTES -------------------
 
 @main.route("/")
 def index():
@@ -152,12 +154,12 @@ def add_fruit():
 def add_to_cart(fruit_id):
     db = get_db()
     quantity = int(request.form.get("quantity", 1))
-    fruit = db.query(Fruit).get(fruit_id)
+    fruit = db.get(Fruit, fruit_id)
     if not fruit:
         flash("Fruit not found!", "danger")
         return redirect(url_for("main.index"))
 
-    cart_item = db.query(CartItem).filter(CartItem.fruit_id==fruit_id).first()
+    cart_item = db.query(CartItem).filter(CartItem.fruit_id == fruit_id).first()
     if cart_item:
         cart_item.quantity += quantity
     else:
@@ -172,3 +174,19 @@ def view_cart_page():
     cart_items = db.query(CartItem).all()
     total = sum(item.quantity * item.fruit.price for item in cart_items)
     return render_template("cart.html", cart_items=cart_items, total=total)
+
+
+@main.route("/remove-from-cart/<int:item_id>", methods=["POST"])
+def remove_from_cart(item_id):
+    db = get_db()
+    item = db.get(CartItem, item_id)
+    if not item:
+        flash("Item not found in cart!", "danger")
+        return redirect(url_for("main.view_cart_page"))
+
+    fruit_name = item.fruit.name  # capture before delete
+    db.delete(item)
+    db.commit()
+
+    flash(f"{fruit_name} removed from cart.", "success")
+    return redirect(url_for("main.view_cart_page"))
