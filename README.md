@@ -15,8 +15,3 @@
 - SQLite (default, can be replaced with PostgreSQL or MySQL)  
 
 
-Follow these steps to run the project locally on your computer.
-
-1. Clone the repository
-git clone https://github.com/yourusername/flask-fruit-shop.git
-cd flask-fruit-shop
